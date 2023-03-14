@@ -1,11 +1,23 @@
-import React, { Suspense, useEffect, useState } from "react";
+import React, { Suspense, useEffect, useState, useRef } from "react";
 import { Canvas } from "@react-three/fiber";
 import { OrbitControls, Preload, useGLTF } from "@react-three/drei";
 
 import CanvasLoader from "../Loader";
 
 const Computers = ({ isMobile }) => {
-  const computer = useGLTF("./desktop_pc/scene.gltf");
+  const computerRef = useRef();
+  const { nodes } = useGLTF("./assistants-p1/test_character_idle.gltf", null, (loader) => {
+    loader.animations = computer.animations;
+  });
+
+  const mixer = useRef();
+  useFrame((state, delta) => mixer.current.update(delta));
+
+  useEffect(() => {
+    mixer.current = new THREE.AnimationMixer(computerRef.current);
+    const action = mixer.current.clipAction(nodes["idle"]);
+    action.play();
+  }, [nodes]);
 
   return (
     <mesh>
@@ -21,6 +33,7 @@ const Computers = ({ isMobile }) => {
       <pointLight intensity={1} />
       <primitive
         object={computer.scene}
+        ref={computerRef}
         scale={isMobile ? 0.7 : 0.75}
         position={isMobile ? [0, -3, -2.2] : [0, -3.25, -1.5]}
         rotation={[-0.01, -0.2, -0.1]}
@@ -28,6 +41,7 @@ const Computers = ({ isMobile }) => {
     </mesh>
   );
 };
+
 
 const ComputersCanvas = () => {
   const [isMobile, setIsMobile] = useState(false);
