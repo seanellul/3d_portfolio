@@ -1,29 +1,36 @@
-import React, { Suspense, useEffect, useState, useRef } from "react";
+import React, { Suspense, useEffect, useState } from "react";
 import { Canvas } from "@react-three/fiber";
-import { OrbitControls, Preload, useGLTF } from "@react-three/drei";
+import { OrbitControls, Preload, useGLTF, useAnimations } from "@react-three/drei";
 
 import CanvasLoader from "../Loader";
 
 const Computers = ({ isMobile }) => {
-  const computerRef = useRef();
-  const { nodes } = useGLTF("./assistants-p1/test_character_idle.gltf", null, (loader) => {
-    loader.animations = computer.animations;
-  });
+  const { nodes, animations } = useGLTF("./assistants-p1/test_character_idle.gltf");
+  const { actions, ref } = useAnimations(animations);
 
-  const mixer = useRef();
-  useFrame((state, delta) => mixer.current.update(delta));
+
+const calculatePosition = (isMobile) => {
+    if (isMobile) {
+      // Position for mobile screens
+      return [0, -1.5, -1.5];
+    } else {
+      // Position for larger screens
+      return [2, -1.5, -2.5];
+    }
+  };
+  
 
   useEffect(() => {
-    mixer.current = new THREE.AnimationMixer(computerRef.current);
-    const action = mixer.current.clipAction(nodes["idle"]);
-    action.play();
-  }, [nodes]);
+    if (actions && actions['Armature|mixamo.com|Layer0']) {
+      actions['Armature|mixamo.com|Layer0'].play();
+    }
+  }, [actions]);
 
   return (
-    <mesh>
+    <mesh ref={ref}>
       <hemisphereLight intensity={0.15} groundColor='black' />
       <spotLight
-        position={[-20, 50, 10]}
+        position={[0, 50, 50]}
         angle={0.12}
         penumbra={1}
         intensity={1}
@@ -32,16 +39,14 @@ const Computers = ({ isMobile }) => {
       />
       <pointLight intensity={1} />
       <primitive
-        object={computer.scene}
-        ref={computerRef}
-        scale={isMobile ? 0.7 : 0.75}
-        position={isMobile ? [0, -3, -2.2] : [0, -3.25, -1.5]}
-        rotation={[-0.01, -0.2, -0.1]}
+        object={nodes.Armature}
+        scale={0.03}
+        position={calculatePosition(isMobile)}
+        rotation={[1.6, 0, -1]}
       />
     </mesh>
   );
 };
-
 
 const ComputersCanvas = () => {
   const [isMobile, setIsMobile] = useState(false);
@@ -69,7 +74,7 @@ const ComputersCanvas = () => {
 
   return (
     <Canvas
-      frameloop='demand'
+      frameloop='always'
       shadows
       dpr={[1, 2]}
       camera={{ position: [20, 3, 5], fov: 25 }}

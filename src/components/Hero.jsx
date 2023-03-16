@@ -19,9 +19,11 @@ const Hero = () => {
             Hi, I'm <span className='text-[#915EFF]'>Timmy!</span>
           </h1>
           <p className={`${styles.heroSubText} mt-2 text-white-100`}>
-            I'm basically a personal assistant <br className='sm:block hidden' />
+            A personal assistant <br className='sm:block hidden' />
             found right in your pocket!
           </p>
+        <br></br>
+          <p className="mt-2 text-white-100 text-[20px]">Build your own Chat GPT personal assistant <br></br> tailored to meet your needs in <span className="text-[#915EFF]"> minutes.</span></p>
         </div>
       </div>
 
